@@ -1,0 +1,9 @@
+com.patienttriage
+com.patienttriage.config
+com.patienttriage.controller
+com.patienttriage.dto
+com.patienttriage.entity
+com.patienttriage.exception
+com.patienttriage.repository
+com.patienttriage.service
+com.patienttriage.service.impl

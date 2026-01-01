@@ -1,0 +1,61 @@
+services:
+
+  # =====================================
+  # 1. PostgreSQL 16
+  # =====================================
+  postgres:
+    image: postgres:16
+    container_name: triage-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: patienttriage
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - triage-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+
+  # =====================================
+  # 2. Java Spring Boot Backend
+  # =====================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: triage-backend
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/patienttriage
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      # ⭐ OpenAI API Key（will add in the future）
+#      OPENAI_API_KEY: ${OPENAI_API_KEY}
+
+    ports:
+      - "8080:8080"
+    networks:
+      - triage-net
+
+# =====================================
+# Shared Network + Volumes
+# =====================================
+networks:
+  triage-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
