@@ -52,3 +52,4 @@ build/
 
 # Big docs (optional)
 *.pptx
+backend/javadocs/
